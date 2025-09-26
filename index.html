@@ -1,14 +1,280 @@
 <!doctype html>
+
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<link rel="icon" type="image/svg+xml" href="/vite.svg" />
-		<meta name="generator" content="Hostinger Horizons" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Hostinger Horizons</title>
-	</head>
-	<body>
-		<div id="root"></div>
-		<script type="module" src="/src/main.jsx"></script>
-	</body>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Online Fun Service — Demo</title>
+  <style>
+    :root{--accent:#ff4d6d;--bg:#0f1724;--card:#0b1220;--muted:#94a3b8}
+    body{font-family:Inter,system-ui,Arial;background:linear-gradient(180deg,#071127 0%,#0b1220 100%);color:#e6eef8;margin:0;padding:18px}
+    header{display:flex;justify-content:space-between;align-items:center}
+    header h1{margin:0;font-size:20px}
+    .container{max-width:1100px;margin:18px auto}
+    .layout{display:grid;grid-template-columns:1fr 360px;gap:18px}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:18px;border-radius:12px;box-shadow:0 6px 20px rgba(2,6,23,0.6)}
+    .hero{height:340px;border-radius:12px;overflow:hidden;display:flex;align-items:flex-end;justify-content:flex-start;position:relative}
+    .hero img{width:100%;height:100%;object-fit:cover;filter:brightness(.6)}
+    .hero .meta{position:absolute;left:18px;bottom:18px}
+    .small-card{margin-bottom:12px}
+    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+    input,select,button{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
+    .model{background:rgba(255,255,255,0.02);padding:8px;border-radius:10px;text-align:center}
+    .model img{width:100%;height:130px;object-fit:cover;border-radius:8px}
+    .btn{background:var(--accent);color:white;border:none;padding:10px;border-radius:9px;cursor:pointer}
+    .muted{color:var(--muted)}
+    .dash{display:none}
+    .flex{display:flex;gap:8px}
+    .tiny{font-size:12px}
+    footer{margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
+    /* responsive */
+    @media(max-width:900px){.layout{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Online Fun Service</h1>
+      <div class="muted tiny">Demo — UI + client logic (no production keys)</div>
+    </header><div class="layout">
+  <main>
+    <div class="card">
+      <div class="hero" id="hero">
+        <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1600&auto=format&fit=crop&ixlib=rb-4.0.3&s=1a7d4f5f6a5f3f2b" alt="model">
+        <div class="meta">
+          <h2 id="hero-name">Ariana Belle</h2>
+          <div class="muted tiny">Popular model</div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px" class="flex">
+        <div style="flex:1" class="small-card card" id="auth-card">
+          <div id="register-view">
+            <h3 style="margin:0 0 8px">Register</h3>
+            <label>Full name<input id="reg-name" placeholder="Full name"></label>
+            <label>Mobile number<input id="reg-mobile" placeholder="01XXXXXXXXX"></label>
+            <label>Password<input id="reg-pass" type="password"></label>
+            <label>Gender
+              <select id="reg-gender"><option value="male">Male</option><option value="female">Female</option></select>
+            </label>
+            <button class="btn" onclick="register()">Create account</button>
+            <div class="muted tiny" style="margin-top:8px">Already registered? <a href="#" onclick="toggleAuth('login')">Login</a></div>
+          </div>
+
+          <div id="login-view" style="display:none">
+            <h3 style="margin:0 0 8px">Login</h3>
+            <label>Mobile number<input id="login-mobile"></label>
+            <label>Password<input id="login-pass" type="password"></label>
+            <button class="btn" onclick="login()">Login</button>
+            <div class="muted tiny" style="margin-top:8px">New? <a href="#" onclick="toggleAuth('register')">Register</a></div>
+          </div>
+
+        </div>
+
+        <div style="width:320px" class="small-card card">
+          <h3 style="margin:0 0 8px">Payment (Demo)</h3>
+          <div class="muted tiny">Wallet balance: <span id="wallet">0</span> credits</div>
+          <div style="margin-top:10px">
+            <input id="topup-amount" placeholder="Amount to add" />
+            <button class="btn" style="margin-top:8px" onclick="topUp()">Top up (simulate)</button>
+          </div>
+          <div style="margin-top:10px" class="muted tiny">Real integration: Stripe / Razorpay / UPI. Use server-side for secure checkout.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <h3 style="margin-top:0">Available Models</h3>
+      <div id="models-grid" class="grid"></div>
+    </div>
+
+  </main>
+
+  <aside>
+    <div class="card">
+      <h3 style="margin-top:0">Quick actions</h3>
+      <button class="btn" onclick="openUserDashboard()">Open User Dashboard</button>
+      <button style="margin-top:8px" onclick="openModelDashboard()">Open Model Dashboard</button>
+      <button style="margin-top:8px;background:#2b2f3a" onclick="openAdmin()">Admin Login</button>
+      <div style="margin-top:12px" class="muted tiny">Admin page is protected in production. Here it's a demo route.</div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <h4 style="margin:0">Signaling & WebRTC (demo)</h4>
+      <div class="muted tiny" style="margin-top:8px">This demo uses Firebase Realtime DB for signaling in comments: add your config in the JS to try live calls.</div>
+    </div>
+  </aside>
+</div>
+
+<div id="user-dash" class="card dash" style="margin-top:18px">
+  <h3>User Dashboard <small id="user-role" class="muted tiny"></small></h3>
+  <div class="muted tiny">Welcome, <span id="user-name"></span></div>
+  <div style="margin-top:12px">
+    <h4>Models online</h4>
+    <div id="models-grid-2" class="grid"></div>
+  </div>
+  <div style="margin-top:12px">
+    <h4>Active Call (demo)</h4>
+    <div id="call-area"></div>
+  </div>
+  <button style="margin-top:12px" onclick="logout()">Logout</button>
+</div>
+
+<div id="model-dash" class="card dash" style="margin-top:18px">
+  <h3>Model Dashboard</h3>
+  <div class="muted tiny">Welcome, <span id="model-name"></span></div>
+  <div style="margin-top:12px">
+    <h4>Incoming Requests</h4>
+    <div id="incoming"></div>
+  </div>
+  <button style="margin-top:12px" onclick="logout()">Logout</button>
+</div>
+
+<div id="admin-login" class="card dash" style="margin-top:18px">
+  <h3>Admin Login</h3>
+  <label>Admin code <input id="admin-code"></label>
+  <button class="btn" onclick="adminLogin()">Enter</button>
+</div>
+
+<footer>Demo — not for production. Replace placeholder keys, secure servers, and follow privacy laws before launch.</footer>
+
+  </div>  <script>
+    // ---------- Demo data and helpers ----------
+    const sampleModels = [
+      {id:'m1',name:'Ariana Belle',img:'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=1a7d4f5f6a5f3f2b'},
+      {id:'m2',name:'Luna Sky',img:'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=98e2c5b9ddf1b3a'},
+      {id:'m3',name:'Maya Rose',img:'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=1a7d4f5f6a5f3f2b'},
+      {id:'m4',name:'Nora Lane',img:'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=2da6b8b9b7b3'}
+    ];
+
+    function el(q){return document.querySelector(q)}
+    function show(node){node.style.display='block'}
+    function hide(node){node.style.display='none'}
+
+    // ---------- populate models ----------
+    function renderModels(gridSelector){
+      const grid = el(gridSelector);
+      grid.innerHTML='';
+      sampleModels.forEach(m=>{
+        const d = document.createElement('div'); d.className='model';
+        d.innerHTML = `<img src="${m.img}" alt="${m.name}"><div style="margin-top:6px"><strong>${m.name}</strong></div><div class=\"muted tiny\">Online</div><button style=\"margin-top:8px\" class=\"btn\" onclick=\"startCall('${m.id}')\">Call</button></div>`;
+        grid.appendChild(d);
+      })
+    }
+    renderModels('#models-grid'); renderModels('#models-grid-2');
+
+    // ---------- simple mock auth using localStorage ----------
+    function toggleAuth(view){if(view==='login'){hide(el('#register-view'));show(el('#login-view'))}else{show(el('#register-view'));hide(el('#login-view'))}}
+    function register(){
+      const name = el('#reg-name').value.trim(); const mobile = el('#reg-mobile').value.trim(); const pass = el('#reg-pass').value; const gender = el('#reg-gender').value;
+      if(!name||!mobile||!pass){alert('Fill all fields');return}
+      const user = {id:mobile,name,mobile,pass,gender,role: gender==='female'?'model':'user',wallet:0}
+      localStorage.setItem('ofs_user_'+mobile, JSON.stringify(user));
+      alert('Created — you can now login'); toggleAuth('login')
+    }
+    function login(){
+      const mobile=el('#login-mobile').value.trim(); const pass=el('#login-pass').value;
+      const record = localStorage.getItem('ofs_user_'+mobile);
+      if(!record){alert('No user found');return}
+      const user = JSON.parse(record);
+      if(user.pass!==pass){alert('Wrong password');return}
+      localStorage.setItem('ofs_session', JSON.stringify(user));
+      openDashboardFor(user);
+    }
+    function openUserDashboard(){
+      const s = localStorage.getItem('ofs_session'); if(!s){alert('Please login/register first'); return}
+      openDashboardFor(JSON.parse(s));
+    }
+    function openModelDashboard(){
+      const s = localStorage.getItem('ofs_session'); if(!s){alert('Please login/register first'); return}
+      openDashboardFor(JSON.parse(s));
+    }
+    function openDashboardFor(user){
+      hide(el('#admin-login'));
+      if(user.role==='model'){
+        hide(el('#user-dash')); show(el('#model-dash'));
+        el('#model-name').innerText=user.name;
+      }else{
+        hide(el('#model-dash')); show(el('#user-dash'));
+        el('#user-name').innerText = user.name; el('#user-role').innerText = '(user)';
+        renderModels('#models-grid-2');
+      }
+      // hide auth card and hero small actions
+      hide(el('#auth-card'));
+      // update wallet display
+      el('#wallet').innerText = user.wallet||0;
+    }
+    function logout(){localStorage.removeItem('ofs_session');show(el('#auth-card'));hide(el('#user-dash'));hide(el('#model-dash'));}
+
+    // ---------- Admin (demo) ----------
+    function openAdmin(){hide(el('#auth-card')); hide(el('#user-dash')); hide(el('#model-dash')); show(el('#admin-login'))}
+    function adminLogin(){const code=el('#admin-code').value.trim(); if(code==='admin123'){alert('Admin access granted — demo only'); window.location.href='#admin-panel';}else{alert('Wrong admin code')}}
+
+    // ---------- Payment (simulate) ----------
+    function topUp(){const amt = parseInt(el('#topup-amount').value)||0; if(!amt || amt<=0){alert('Enter amount');return}
+      const s = localStorage.getItem('ofs_session'); if(!s){alert('Login to top up');return}
+      const user = JSON.parse(s);
+      user.wallet = (user.wallet||0) + amt;
+      localStorage.setItem('ofs_session', JSON.stringify(user));
+      localStorage.setItem('ofs_user_'+user.mobile, JSON.stringify(user));
+      el('#wallet').innerText = user.wallet;
+      alert('Top up successful (simulated)')
+    }
+
+    // ---------- Demo WebRTC start (very simplified) ----------
+    // NOTE: WebRTC requires a signaling server. In this demo we only open a local popup and create peer connection
+    let pcLocal=null, pcRemote=null;
+    async function startCall(modelId){
+      const s = localStorage.getItem('ofs_session'); if(!s){alert('Please login as a user to call');return}
+      const me = JSON.parse(s);
+      // Check wallet
+      if((me.wallet||0)<=0){if(!confirm('You have 0 credits. Top up?')) return}
+      // Simulate a small peer connection within same page for demo (loopback)
+      const constraints = {audio:true,video:true};
+      try{
+        const stream = await navigator.mediaDevices.getUserMedia({video:{width:320},audio:true});
+        const localVid = document.createElement('video'); localVid.autoplay=true; localVid.muted=true; localVid.srcObject = stream; localVid.style.width='160px';
+        const remoteVid = document.createElement('video'); remoteVid.autoplay=true; remoteVid.style.width='160px';
+        el('#call-area').innerHTML=''; el('#call-area').appendChild(localVid); el('#call-area').appendChild(remoteVid);
+
+        pcLocal = new RTCPeerConnection(); pcRemote = new RTCPeerConnection();
+        // add tracks
+        stream.getTracks().forEach(t=>pcLocal.addTrack(t,stream));
+        pcLocal.onicecandidate = e=>{ if(e.candidate) pcRemote.addIceCandidate(e.candidate)};
+        pcRemote.onicecandidate = e=>{ if(e.candidate) pcLocal.addIceCandidate(e.candidate)};
+        pcRemote.ontrack = e=>{ remoteVid.srcObject = e.streams[0]; }
+        // create offer-answer
+        const offer = await pcLocal.createOffer(); await pcLocal.setLocalDescription(offer);
+        await pcRemote.setRemoteDescription(offer);
+        const answer = await pcRemote.createAnswer(); await pcRemote.setLocalDescription(answer);
+        await pcLocal.setRemoteDescription(answer);
+
+        alert('Call started (local loopback demo). In production signaling server needed to connect remote peers.');
+      }catch(err){console.error(err);alert('Could not start media: '+err.message)}
+    }
+
+    // ---------- small helpers for incoming requests (demo) ----------
+    function addIncomingRequest(from){ const box = document.createElement('div'); box.className='model'; box.innerHTML=`<strong>${from}</strong><div class=\"muted tiny\">wants to call</div><div style=\"margin-top:8px\"><button class=\"btn\" onclick=\"acceptReq(this,'${from}')\">Accept</button> <button style=\"margin-left:6px\" onclick=\"declineReq(this)\">Decline</button></div>`; el('#incoming').appendChild(box);} 
+    function acceptReq(btn,from){ alert('Accepted '+from+' (demo)');}
+    function declineReq(btn){ btn.closest('.model').remove(); }
+
+    // ---------- small startup: if session exists auto open dashboard ----------
+    window.addEventListener('load',()=>{
+      const s = localStorage.getItem('ofs_session'); if(s) openDashboardFor(JSON.parse(s));
+      // add a few fake incoming requests to model dash for demo
+      addIncomingRequest('user_01'); addIncomingRequest('user_02');
+    });
+
+    // ---------- Notes for production (comments only) ----------
+    /*
+      - Replace mock auth with Firebase Auth / own server + JWT.
+      - Use Firebase Realtime DB or Socket.io server as signaling channel for WebRTC (exchange SDP + ICE candidates).
+      - Use TURN servers (coturn) for reliable media relay when P2P fails.
+      - Integrate Stripe / Razorpay server-side for secure payments and webhooks.
+      - Protect admin routes, use role-based access control in backend.
+      - Ensure age verification, KYC, and follow local laws before deploying.
+    */
+  </script></body>
 </html>
